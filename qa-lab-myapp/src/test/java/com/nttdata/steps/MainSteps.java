@@ -21,7 +21,7 @@ public class MainSteps {
     }
 
     public void findProduct(String productName) {
-        mainScreen.selectProduct(productName);
+        mainScreen.clickOnProductByName(productName);
     }
 
     public void setQuantity(int quantity) {

@@ -4,6 +4,7 @@ import io.appium.java_client.pagefactory.AndroidFindBy;
 import net.serenitybdd.core.pages.PageObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -23,8 +24,21 @@ public class MainScreen extends PageObject {
     @AndroidFindBy(id = "com.saucelabs.mydemoapp.android:id/cartIV")
     private WebElement rvCart;
 
-    @AndroidFindBy(xpath = "//androidx.recyclerview.widget.RecyclerView[@content-desc=\"Displays all products of catalog\"]")
-    private List rvProducts;
+    @AndroidFindBy(xpath = "//androidx.recyclerview.widget.RecyclerView[@content-desc=\"Displays all products of catalog\"]/android.view.ViewGroup[1]")
+    private WebElement rvProduct1;
+    @AndroidFindBy(xpath = "//androidx.recyclerview.widget.RecyclerView[@content-desc=\"Displays all products of catalog\"]/android.view.ViewGroup[2]")
+    private WebElement rvProduct2;
+    @AndroidFindBy(xpath = "//androidx.recyclerview.widget.RecyclerView[@content-desc=\"Displays all products of catalog\"]/android.view.ViewGroup[3]")
+    private WebElement rvProduct3;
+
+    @AndroidFindBy(xpath = "//androidx.recyclerview.widget.RecyclerView[@content-desc='Displays all products of catalog']")
+    private WebElement rvProductList;
+
+    public int getProductCount() {
+        waitFor(ExpectedConditions.visibilityOf(rvProductList));
+        List<WebElement> productElements = rvProductList.findElements(By.xpath(".//android.widget.TextView"));
+        return productElements.size();
+    }
 
     public boolean isTitleDisplayed() {
         waitFor(ExpectedConditions.visibilityOf(tvTitle));
@@ -36,12 +50,22 @@ public class MainScreen extends PageObject {
         return rvProductsContainer.isDisplayed();
     }
 
-    public void findProductByName(String productName) {
-        click(rvProducts.get())
-        String productXpath = String.format("//android.widget.TextView[contains(@text, '%s')]", productName);
-        WebElement productTitle = waitFor(ExpectedConditions.visibilityOfElementLocated(By.xpath(productXpath)));
-        productTitle.findElement(By.xpath("./ancestor::android.view.ViewGroup")).click();
+    public void clickOnProductByName(String productName) {
+        switch (productName) {
+            case "Sauce Labs Backpack":
+                waitFor(ExpectedConditions.visibilityOf(rvProduct1));
+                rvProduct1.click(); break;
+            case "Sauce Labs Bike Light":
+                waitFor(ExpectedConditions.visibilityOf(rvProduct2));
+                rvProduct2.click(); break;
+            case "Sauce Labs Bolt - T-Shirt":
+                waitFor(ExpectedConditions.visibilityOf(rvProduct3));
+                rvProduct3.click(); break;
+            default:
+                throw new IllegalArgumentException("Producto no encontrado: " + productName);
+        }
     }
+
 
     public void goToCart() {
         waitFor(ExpectedConditions.visibilityOf(rvCart));
