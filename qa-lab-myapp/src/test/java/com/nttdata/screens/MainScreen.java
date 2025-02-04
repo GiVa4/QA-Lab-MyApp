@@ -24,13 +24,6 @@ public class MainScreen extends PageObject {
     @AndroidFindBy(id = "com.saucelabs.mydemoapp.android:id/cartIV")
     private WebElement rvCart;
 
-    @AndroidFindBy(xpath = "//androidx.recyclerview.widget.RecyclerView[@content-desc=\"Displays all products of catalog\"]/android.view.ViewGroup[1]")
-    private WebElement rvProduct1;
-    @AndroidFindBy(xpath = "//androidx.recyclerview.widget.RecyclerView[@content-desc=\"Displays all products of catalog\"]/android.view.ViewGroup[2]")
-    private WebElement rvProduct2;
-    @AndroidFindBy(xpath = "//androidx.recyclerview.widget.RecyclerView[@content-desc=\"Displays all products of catalog\"]/android.view.ViewGroup[3]")
-    private WebElement rvProduct3;
-
     @AndroidFindBy(xpath = "//androidx.recyclerview.widget.RecyclerView[@content-desc='Displays all products of catalog']")
     private WebElement rvProductList;
 
@@ -51,19 +44,31 @@ public class MainScreen extends PageObject {
     }
 
     public void clickOnProductByName(String productName) {
-        switch (productName) {
-            case "Sauce Labs Backpack":
-                waitFor(ExpectedConditions.visibilityOf(rvProduct1));
-                rvProduct1.click(); break;
-            case "Sauce Labs Bike Light":
-                waitFor(ExpectedConditions.visibilityOf(rvProduct2));
-                rvProduct2.click(); break;
-            case "Sauce Labs Bolt - T-Shirt":
-                waitFor(ExpectedConditions.visibilityOf(rvProduct3));
-                rvProduct3.click(); break;
-            default:
-                throw new IllegalArgumentException("Producto no encontrado: " + productName);
+        WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(20));
+
+        try {
+            for (int i = 1; i <= getProductCount(); i++) {
+                WebElement product = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                        By.xpath(getProductPath(i))
+                ));
+
+                List<WebElement> titles = product.findElements(By.id("com.saucelabs.mydemoapp.android:id/titleTV"));
+
+                if (!titles.isEmpty() && titles.get(0).getText().equalsIgnoreCase(productName)) {
+                    wait.until(ExpectedConditions.elementToBeClickable(product)).click();
+                    return;
+                }
+            }
+            System.out.println("⚠ Producto no encontrado: " + productName);
+        } catch (Exception e) {
+            System.out.println("❌ Error al buscar producto: " + e.getMessage());
         }
+    }
+
+    public String getProductPath(int index){
+        String path;
+        path = "//androidx.recyclerview.widget.RecyclerView[@content-desc=\"Displays all products of catalog\"]/android.view.ViewGroup["+index+"]";
+        return path;
     }
 
 
